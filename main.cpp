@@ -6,11 +6,12 @@
 #include <stack>
 #include <cstdlib>
 #include "main.h"
+#include "conversion.h"
 
 using namespace std;
 
 enum TYPES {CHAR, INT, FLOAT, DOUBLE, STRING};
-enum COMMANDS {HALT, PRTCR, PRTC, PRTI, PRTF, PRTD, PRTS, PRTAC, PRTAI, PRTAF, PRTAD, PRTAS, PUSHC, PUSHI, PUSHF, PUSHD, PUSHS, PUSHAC, PUSHAI, PUSHAF, PUSHAD, PUSHAS, PUSHKC, PUSHKI, PUSHKF, PUSHKD, PUSHKS, POPC, POPI, POPF, POPD, POPS, POPX, POPAC, POPAI, POPAF, POPAD, POPAS, RDC, RDI, RDF, RDD, RDS, RDAC, RDAI, RDAF, RDAD, RDAS, JMP, JMPEQ, JMPNE, JMPGT, JMPGE, JMPLT, JMPLE, STX, STKX, INC, DEC, ADD, SUB, MUL, DIV, MOD, CMP};
+enum COMMANDS {HALT, PRTCR, PRTC, PRTI, PRTF, PRTD, PRTS, PRTAC, PRTAI, PRTAF, PRTAD, PRTAS, PUSHC, PUSHI, PUSHF, PUSHD, PUSHS, PUSHAC, PUSHAI, PUSHAF, PUSHAD, PUSHAS, PUSHKC, PUSHKI, PUSHKF, PUSHKD, PUSHKS, POPC, POPI, POPF, POPD, POPS, POPX, POPAC, POPAI, POPAF, POPAD, POPAS, RDC, RDI, RDF, RDD, RDS, RDAC, RDAI, RDAF, RDAD, RDAS, JMP, JMPEQ, JMPNE, JMPGT, JMPGE, JMPLT, JMPLE, STX, STKX, INC, DEC, ADD, SUB, MUL, DIV, MOD, CMP, PRTM};
 
 int evindex;
 char* memoryMapper;
@@ -38,6 +39,8 @@ std::ofstream outfile("CK.rice");
 size_t size = 0;
 char* oData = 0;
 char* youAreHere;
+int **vararr = NULL; //variable array
+size_t vars = 0;
 
 //function variables
 int tempAddress;
@@ -48,6 +51,7 @@ string tempString;
 bool errorFlag = false;
 float tempFloat;
 double tempDouble;
+bool firstLoop = true;
 
 int cmpeval, arrindex;
 
@@ -60,6 +64,13 @@ int main(int argc, char *argv[])
 
 	copyrightCheck();
 
+	mainSwitch();
+	firstLoop = false;
+	evindex = 14;
+	setVarName();
+
+	std::cout << "firstLoop done!!!\n\n\n";
+
 	if(mainSwitch())
 		return 1;
 
@@ -69,18 +80,93 @@ int main(int argc, char *argv[])
 	return 0;
 }  //int main(int argc, char *argv[])
 
+void prtcrFunc()
+{
+	outfile << "prtcr \n";
+}  //void prtcrFunc()
+
+void pushkiFunc()
+{
+	outfile << "pushki " << chartoint(&youAreHere[evindex]) << std::endl;
+	evindex += 4;
+}  //void pushkiFunc()
+
+void pushkcFunc()
+{
+	outfile << "pushkc '" << (char)youAreHere[evindex] << "'" <<  std::endl;
+	evindex++;
+}  //void pushkcFunc()
+
+void popiFunc()
+{
+	if(firstLoop)
+	{
+		arrResize(chartodir(&youAreHere[evindex]), 'i');
+		return;
+	}
+	outfile << "popi var" << getVarName(chartodir(&youAreHere[evindex])) << std::endl;
+	evindex += 2;
+}  //void popiFunc()
+
+void popcFunc()
+{
+	if(firstLoop)
+	{
+		arrResize(chartodir(&youAreHere[evindex]),'c');
+		return;
+	}
+	outfile << "popc var" << getVarName(chartodir(&youAreHere[evindex])) << std::endl;
+	evindex += 2;
+}  //void popcFunc()
+
+void pushkfFunc()
+{
+	outfile << "pushkf " << chartofloat(&youAreHere[evindex]) << std::endl;
+	evindex += 4;
+}  //void pushkfFunc()
+
+void pushkdFunc()
+{
+	outfile << "pushkd " << chartodouble(&youAreHere[evindex]) << std::endl;
+	evindex += 8;
+}  //void pushkdFunc()
+
+void pushksFunc()
+{
+	outfile << "pushks \"";
+	int i = youAreHere[evindex++];
+	while(i-- > 0)
+		outfile << youAreHere[evindex++];
+	outfile << "\"" << std::endl;
+}  //void pushksFunc()
+
 int mainSwitch()
 {
-	/*
 	while(true && !errorFlag)
 	{
-		tempBlock = {};
-      switch(youAreHere[evindex++]){
-        case PRTCR:
-          cout << "\n";
+		tempInteger = evindexjmp();
+		if(tempInteger)
+		{
+			evindex += tempInteger;
+			continue;
+		}
+		if(firstLoop && youAreHere[evindex] == PRTCR)
+		{
+			evindex++;
+			continue;
+		}
+		if(firstLoop && youAreHere[evindex] == HALT)
+			return 0;
+		StackBlock reset = {};
+		tempBlock = reset;
+
+		printf("instruction: %x \n", youAreHere[evindex]);
+
+      switch(youAreHere[evindex++]){ 
+        case PRTCR: prtcrFunc();
         break;
-        case PRTC: prtcFunc();
-        break;
+        case PRTC: outfile << "prtc '" << youAreHere[evindex++] << "'\n";
+        break;/*
         case PRTI: prtiFunc();
         break;
         case PRTF: prtfFunc();
@@ -118,7 +204,7 @@ int mainSwitch()
         case PUSHAD: pushadFunc();
         break;
         case PUSHAS: pushasFunc();
-        break;
+        break;*/
         case PUSHKC: pushkcFunc();
         break;
         case PUSHKI: pushkiFunc();
@@ -132,7 +218,7 @@ int mainSwitch()
         case POPC: popcFunc();
         break;
         case POPI: popiFunc();
-        break;
+        break;/*
         case POPF: popfFunc();
         break;
         case POPD: popdFunc();
@@ -205,15 +291,140 @@ int mainSwitch()
         break;
         case CMP: cmpFunc();
         break;
-        case HALT: system("pause");
+        case PRTM:
+        break;*/
+        case HALT: outfile << "halt\n";
           return 0;
         break;
         default: cout << "ERROR: Unrecognized Command.";
         break;
       }
-  	}*/
+  	}
       return 0;
 }  //void mainSwitch()
+
+int evindexjmp()
+{
+	if(firstLoop)
+	{
+		if(youAreHere[evindex] > PRTCR && youAreHere[evindex] < ADD && youAreHere[evindex] != POPX)
+		{
+			if(youAreHere[evindex] < PUSHKC || youAreHere[evindex] > RDAS)
+				return 3;
+			else
+				if(youAreHere[evindex] == PUSHKC)
+					return 2;
+				else
+					if(youAreHere[evindex] == PUSHKI || youAreHere[evindex] == PUSHKF)
+						return 5;
+					else
+						if(youAreHere[evindex] == PUSHKD)
+							return 9;
+						else
+							if(youAreHere[evindex] == PUSHKS)
+							{
+								return (int)youAreHere[++evindex] + 1;
+							}
+		}
+		else
+			if(youAreHere[evindex] == PRTM)
+			{
+				return (int)youAreHere[++evindex] + 2;
+			}
+	}
+	return 0;
+}  //int evindexjmp()
+
+int getVarName(int dir)
+{
+	int i;
+	for(i = 0; vararr[i][0] != dir && i < vars;i++)
+	{
+	}
+	return i;
+}  //char* getVarName()
+
+void setVarName()
+{
+	int i = 0;
+	char *varN;
+	while(i < vars)
+	{
+		std::cout << "var" << i << "  varindeeeex  " << vararr[i][1] << std::endl;
+		switch(vararr[i][1])
+		{
+			case 'i': outfile << "defi var" << i << std::endl;
+			break;
+			case 'f': outfile << "deff var" << i << std::endl;
+			break;
+			case 'd': outfile << "defd var" << i << std::endl;
+			break;
+			case 'c': outfile << "defc var" << i << std::endl;
+			break;
+			case 's': outfile << "defs var" << i << std::endl;
+			break;
+			case 'I': outfile << "defai var" << i << std::endl;
+			break;
+			case 'F': outfile << "defaf var" << i << std::endl;
+			break;
+			case 'D': outfile << "defad var" << i << std::endl;
+			break;
+			case 'C': outfile << "defac var" << i << std::endl;
+			break;
+			case 'S': outfile << "defas var" << i << std::endl;
+			break; 
+		}
+		i++;
+	}
+}  //void setVarName()
+
+void arrResize(int dir, char type)
+{
+	if(vars == 0)
+	{
+		vars++;
+		vararr = new int *[1];
+		vararr[0] = new int[2];
+		vararr[0][0] = dir;
+		vararr[0][1] = (int)type;
+		evindex += 2;
+		return;
+	}
+	int ** temparr = new int*[++vars];
+	bool sum = false;
+	std::cout << "first check\n";
+	for(int i = 0; i < vars; i++)
+	{
+		if(!sum && dir == vararr[i][0])
+			return;
+		std::cout << "r\n";
+		temparr[i] = new int[2];
+		if(sum)
+		{
+			temparr[i][0] = vararr[i-1][0];
+			temparr[i][1] = vararr[i-1][1];
+		}
+		else
+		{
+			if(dir < vararr[i][0])
+			{
+				sum = true;
+				temparr[i][0] = dir;
+				temparr[i][1] = (int)type;
+			}
+			else
+			{
+			temparr[i][0] = vararr[i][0];
+			temparr[i][1] = vararr[i][1];
+			}
+		}
+		std::cout << temparr[i][0] << "typeee: " << temparr[i][1] << "   hey world! \n";
+	}
+	std::cout << "out of loop\n";
+	vararr = temparr;
+	evindex += 2;
+}  //void arrResize(int dir, char type)
+
 
 void fileOpen(char *fileName)
 {
@@ -242,4 +453,6 @@ void copyrightCheck()
     }
     someIndex++;
   }
+  std::cout << "successful copyright!\n";
+  evindex = 14;
 }

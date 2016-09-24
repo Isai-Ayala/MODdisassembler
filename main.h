@@ -1,9 +1,13 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+int evindexjmp();
+int getVarName(int dir);
+void setVarName();
 void fileOpen(char *fileName);
 void copyrightCheck();
 int mainSwitch();
+void prtmFunc();
 void prtiFunc();
 void prtsFunc();
 void popsFunc();
@@ -67,5 +71,7 @@ void pushasFunc();
 void popasFunc();
 void rdasFunc();
 void prtasFunc();
+void arrResize(int dir, char type);
+void prtcrFunc();
 
 #endif

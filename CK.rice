@@ -1,0 +1,19 @@
+defi var0
+defc var1
+defi var2
+pushkd 65.34
+pushks "HOLA"
+pushki 4
+prtcr 
+pushkc 'M'
+prtcr 
+popc var1
+popi var2
+pushki 91
+prtcr 
+prtcr 
+popi var0
+prtcr 
+pushkf 9.23
+pushks "CRAYOLA"
+halt
