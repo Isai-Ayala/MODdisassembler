@@ -4,16 +4,16 @@ defi var2
 pushkd 65.34
 pushks "HOLA"
 pushki 4
-prtcr 
-pushkc 'M'
-prtcr 
+prtcr
+pushkc M
+prtcr
 popc var1
 popi var2
 pushki 91
-prtcr 
-prtcr 
+prtcr
+prtcr
 popi var0
-prtcr 
+prtcr
 pushkf 9.23
 pushks "CRAYOLA"
 halt

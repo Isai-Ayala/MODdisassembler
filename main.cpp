@@ -80,56 +80,24 @@ int main(int argc, char *argv[])
 	return 0;
 }  //int main(int argc, char *argv[])
 
-void prtcrFunc()
+void normalFunc(const char* msg)
 {
-	outfile << "prtcr \n";
-}  //void prtcrFunc()
+	outfile << msg << getVarName(chartodir(&youAreHere[evindex])) << std::endl;
+	evindex += 2;
+}  //void normalFunc(const char* msg)
 
-void pushkiFunc()
-{
-	outfile << "pushki " << chartoint(&youAreHere[evindex]) << std::endl;
-	evindex += 4;
-}  //void pushkiFunc()
-
-void pushkcFunc()
-{
-	outfile << "pushkc '" << (char)youAreHere[evindex] << "'" <<  std::endl;
-	evindex++;
-}  //void pushkcFunc()
-
-void popiFunc()
+void defFunc(char t, const char* msg)
 {
 	if(firstLoop)
 	{
-		arrResize(chartodir(&youAreHere[evindex]), 'i');
+		arrResize(chartodir(&youAreHere[evindex]), t);
 		return;
 	}
-	outfile << "popi var" << getVarName(chartodir(&youAreHere[evindex])) << std::endl;
+	outfile << msg;
+	getVarName2(chartodir(&youAreHere[evindex]));
+	outfile << std::endl;
 	evindex += 2;
-}  //void popiFunc()
-
-void popcFunc()
-{
-	if(firstLoop)
-	{
-		arrResize(chartodir(&youAreHere[evindex]),'c');
-		return;
-	}
-	outfile << "popc var" << getVarName(chartodir(&youAreHere[evindex])) << std::endl;
-	evindex += 2;
-}  //void popcFunc()
-
-void pushkfFunc()
-{
-	outfile << "pushkf " << chartofloat(&youAreHere[evindex]) << std::endl;
-	evindex += 4;
-}  //void pushkfFunc()
-
-void pushkdFunc()
-{
-	outfile << "pushkd " << chartodouble(&youAreHere[evindex]) << std::endl;
-	evindex += 8;
-}  //void pushkdFunc()
+}  //void defFunc()
 
 void pushksFunc()
 {
@@ -139,6 +107,15 @@ void pushksFunc()
 		outfile << youAreHere[evindex++];
 	outfile << "\"" << std::endl;
 }  //void pushksFunc()
+
+void prtmFunc()
+{
+	outfile << "prtm \"";
+	int i = youAreHere[evindex++];
+	while(i-- > 0)
+		outfile << youAreHere[evindex++];
+	outfile << "\"" << std::endl;
+}  //void prtmFunc()
 
 int mainSwitch()
 {
@@ -163,136 +140,146 @@ int mainSwitch()
 		printf("instruction: %x \n", youAreHere[evindex]);
 
       switch(youAreHere[evindex++]){ 
-        case PRTCR: prtcrFunc();
+        case PRTCR: outfile << "prtcr\n";
         break;
-        case PRTC: outfile << "prtc '" << youAreHere[evindex++] << "'\n";
-        break;/*
-        case PRTI: prtiFunc();
+        case PRTC: normalFunc((const char*)"prtc var");
         break;
-        case PRTF: prtfFunc();
+        case PRTI: normalFunc((const char*)"prti var");
         break;
-        case PRTD:prtdFunc();
+        case PRTF: normalFunc((const char*)"prtf var");
         break;
-        case PRTS: prtsFunc();
+        case PRTD: normalFunc((const char*)"prtd var");
         break;
-        case PRTAC: prtacFunc();
+        case PRTS: normalFunc((const char*)"prts var");
         break;
-        case PRTAI: prtaiFunc();
+        case PRTAC: normalFunc((const char*)"prtac var");
         break;
-        case PRTAF: prtafFunc();
+        case PRTAI: normalFunc((const char*)"prtai var");
         break;
-        case PRTAD: prtadFunc();
+        case PRTAF: normalFunc((const char*)"prtaf var");
         break;
-        case PRTAS: prtasFunc();
+        case PRTAD: normalFunc((const char*)"prtad var");
         break;
-        case PUSHC: pushcFunc();
+        case PRTAS: normalFunc((const char*)"prtas var");
         break;
-        case PUSHI: pushiFunc();
+        case PUSHC: normalFunc((const char*)"pushc var");
         break;
-        case PUSHF: pushfFunc();
+        case PUSHI: normalFunc((const char*)"pushi var");
         break;
-        case PUSHD: pushdFunc();
+        case PUSHF: normalFunc((const char*)"pushf var");
         break;
-        case PUSHS: pushsFunc();
+        case PUSHD: normalFunc((const char*)"pushd var");
+        break;
+        case PUSHS: normalFunc((const char*)"pushs var");
           break;
-        case PUSHAC: pushacFunc();
+        case PUSHAC: normalFunc((const char*)"pushac var");
         break;
-        case PUSHAI: pushaiFunc();
+        case PUSHAI: normalFunc((const char*)"pushai var");
         break;
-        case PUSHAF: pushafFunc();
+        case PUSHAF: normalFunc((const char*)"pushaf var");
         break;
-        case PUSHAD: pushadFunc();
+        case PUSHAD: normalFunc((const char*)"pushad var");
         break;
-        case PUSHAS: pushasFunc();
-        break;*/
-        case PUSHKC: pushkcFunc();
+        case PUSHAS: normalFunc((const char*)"pushas var");
         break;
-        case PUSHKI: pushkiFunc();
+        case PUSHKC: 
+			outfile << "pushkc " << (char)youAreHere[evindex] << std::endl;
+			evindex++;
         break;
-        case PUSHKF: pushkfFunc();
+        case PUSHKI: 
+			outfile << "pushki " << chartoint(&youAreHere[evindex]) << std::endl;
+			evindex += 4;
         break;
-        case PUSHKD: pushkdFunc();
+        case PUSHKF: 
+			outfile << "pushkf " << chartofloat(&youAreHere[evindex]) << std::endl;
+			evindex += 4;
+        break;
+        case PUSHKD: 
+			outfile << "pushkd " << chartodouble(&youAreHere[evindex]) << std::endl;
+			evindex += 8;
         break;
         case PUSHKS: pushksFunc();
         break;
-        case POPC: popcFunc();
+        case POPC: defFunc('c', (const char*)"popc var");
         break;
-        case POPI: popiFunc();
-        break;/*
-        case POPF: popfFunc();
+        case POPI: defFunc('i', (const char*)"popi var");
         break;
-        case POPD: popdFunc();
+        case POPF: defFunc('f', (const char*)"popf var");
         break;
-        case POPS: popsFunc();
+        case POPD: defFunc('d', (const char*)"popd var");
         break;
-        case POPX: if(!popxFunc()) return 1;
+        case POPS: defFunc('s', (const char*)"pops var");
         break;
-        case POPAC: popacFunc();
+        case POPX: outfile << "popx\n";
         break;
-        case POPAI: popaiFunc();
+        case POPAC: defFunc('C', (const char*)"popac var");
         break;
-        case POPAF: popafFunc();
+        case POPAI: defFunc('I', (const char*)"popai var");
         break;
-        case POPAD: popadFunc();
+        case POPAF: defFunc('F', (const char*)"popaf var");
         break;
-        case POPAS: popasFunc();
+        case POPAD: defFunc('D', (const char*)"popad var");
         break;
-        case RDC: if(!rdcFunc()) return 1;
+        case POPAS: defFunc('S', (const char*)"popas var");
         break;
-        case RDI: rdiFunc();
+        case RDC: defFunc('c', (const char*)"rdc var");
         break;
-        case RDF: rdfFunc();
+        case RDI: defFunc('i', (const char*)"rdi var");
         break;
-        case RDD: rddFunc();
+        case RDF: defFunc('f', (const char*)"rdf var");
         break;
-        case RDS: rdsFunc();
+        case RDD: defFunc('d', (const char*)"rdd var");
         break;
-        case RDAC: if(!rdacFunc()) return 1;
+        case RDS: defFunc('s', (const char*)"rds var");
         break;
-        case RDAI: rdaiFunc();
+        case RDAC: defFunc('C', (const char*)"rdac var");
         break;
-        case RDAF: rdafFunc();
+        case RDAI: defFunc('I', (const char*)"rdai var");
         break;
-        case RDAD: rdadFunc();
+        case RDAF: defFunc('F', (const char*)"rdaf var");
         break;
-        case RDAS: rdasFunc();
+        case RDAD: defFunc('D', (const char*)"rdad var");
         break;
-        case JMP: jmpFunc();
+        case RDAS: defFunc('S', (const char*)"rdas var");
         break;
-        case JMPEQ: jmpeqFunc();
+        case JMP: normalFunc((const char*)"jmp var");
         break;
-        case JMPNE: jmpneFunc();
+        case JMPEQ: normalFunc((const char*)"jmpeq var");
         break;
-        case JMPGT: jmpgtFunc();
+        case JMPNE: normalFunc((const char*)"jmpne var");
         break;
-        case JMPGE: jmpgeFunc();
+        case JMPGT: normalFunc((const char*)"jmpgt var");
         break;
-        case JMPLT: jmpltFunc();
+        case JMPGE: normalFunc((const char*)"jmpge var");
         break;
-        case JMPLE: jmpleFunc();
+        case JMPLT: normalFunc((const char*)"jmplt var");
         break;
-        case STX: stxFunc();
+        case JMPLE: normalFunc((const char*)"jmple var");
         break;
-        case STKX: stkxFunc();
+        case STX: normalFunc((const char*)"stx var");
         break;
-        case INC: incFunc();
+        case STKX: 
+        	outfile << "stkx " << chartoint(&youAreHere[evindex]) << std::endl;
+        	evindex += 4;
         break;
-        case DEC: decFunc();
+        case INC: normalFunc((const char*)"inc var");
         break;
-        case ADD: if(!addFunc()) return 1;
+        case DEC: normalFunc((const char*)"dec var");
         break;
-        case SUB: if(!subFunc()) return 1;
+        case ADD: outfile << "add\n";
         break;
-        case MUL: if(!mulFunc()) return 1;
+        case SUB: outfile << "sub\n";
         break;
-        case DIV: if(!divFunc()) return 1;
+        case MUL: outfile << "mul\n";
         break;
-        case MOD: if(!modFunc()) return 1;
+        case DIV: outfile << "div\n";
         break;
-        case CMP: cmpFunc();
+        case MOD: outfile << "mod\n";
         break;
-        case PRTM:
-        break;*/
+        case CMP: outfile << "cmp\n";
+        break;
+        case PRTM: prtmFunc();
+        break;
         case HALT: outfile << "halt\n";
           return 0;
         break;
@@ -334,6 +321,15 @@ int evindexjmp()
 	}
 	return 0;
 }  //int evindexjmp()
+
+void getVarName2(int dir)
+{
+	int i;
+	for(i = 0; vararr[i][0] != dir && i < vars;i++)
+	{
+	}
+	outfile << i;
+}  //char* getVarName()
 
 int getVarName(int dir)
 {
