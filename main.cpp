@@ -359,15 +359,35 @@ void setVarName()
 			break;
 			case 's': outfile << "defs var" << i << std::endl;
 			break;
-			case 'I': outfile << "defai var" << i << std::endl;
+			case 'I': outfile << "defai var" << i << ", ";
+				if(i + 1 != vars)
+					outfile << ((vararr[i+1][0] - vararr[i][0])/4) << std::endl;
+				else
+					outfile << ((dataSegment - vararr[i][0])/4) << std::endl;
 			break;
-			case 'F': outfile << "defaf var" << i << std::endl;
+			case 'F': outfile << "defaf var" << i << ", ";
+				if(i + 1 != vars)
+					outfile << ((vararr[i+1][0] - vararr[i][0])/4) << std::endl;
+				else
+					outfile << ((dataSegment - vararr[i][0])/4) << std::endl;
 			break;
-			case 'D': outfile << "defad var" << i << std::endl;
+			case 'D': outfile << "defad var" << i << ", ";
+				if(i + 1 != vars)
+					outfile << ((vararr[i+1][0] - vararr[i][0])/8) << std::endl;
+				else
+					outfile << ((dataSegment - vararr[i][0])/8) << std::endl;
 			break;
-			case 'C': outfile << "defac var" << i << std::endl;
+			case 'C': outfile << "defac var" << i << ", ";
+				if(i + 1 != vars)
+					outfile << (vararr[i+1][0] - vararr[i][0]) << std::endl;
+				else
+					outfile << (dataSegment - vararr[i][0]) << std::endl;
 			break;
-			case 'S': outfile << "defas var" << i << std::endl;
+			case 'S': outfile << "defas var" << i << ", ";
+				if(i + 1 != vars)
+					outfile << 1 << ", " << (vararr[i+1][0] - vararr[i][0]) << std::endl;
+				else
+					outfile << 1 << ", " << (dataSegment - vararr[i][0]) << std::endl;
 			break; 
 		}
 		i++;
@@ -450,5 +470,6 @@ void copyrightCheck()
     someIndex++;
   }
   std::cout << "successful copyright!\n";
+  dataSegment = chartodir(&youAreHere[someIndex]);
   evindex = 14;
 }
